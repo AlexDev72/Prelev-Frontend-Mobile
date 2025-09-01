@@ -9,6 +9,8 @@ import {
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 // J'importe les types pour navigation stack
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -42,7 +44,10 @@ const LoginScreen = ({ navigation, onLogin }: Props) => {
       });
 
       console.log("Réponse backend :", response.data);
+   const token = response.data.token; // récupère le token réel envoyé par le backend
 
+    // On le stocke dans AsyncStorage
+    await AsyncStorage.setItem("token", token);
       // Si tout est ok, l'utilisateur est connecté
       onLogin();
     } catch (error: any) {

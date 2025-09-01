@@ -4,7 +4,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 // J'importe l'écran HomePage qui sera un onglet dans la barre
-import HomePage from "../page/homepage";
+import HomePage from "../page/HomePage";
 
 // J'importe les icônes Ionicons pour mettre des icônes sur les onglets
 import { Ionicons } from "@expo/vector-icons";
@@ -17,6 +17,9 @@ const Tab = createBottomTabNavigator();
 interface NavBottomProps {
   onLogout: () => void;
 }
+
+// Je crée un composant vide pour éviter le warning lié à component={() => null}
+const EmptyScreen = () => null;
 
 // Je définis mon composant de navigation bottom
 const NavBottom = ({ onLogout }: NavBottomProps) => {
@@ -55,7 +58,7 @@ const NavBottom = ({ onLogout }: NavBottomProps) => {
       {/* Je définis un onglet Logout qui n'affiche pas d'écran mais exécute la déconnexion */}
       <Tab.Screen
         name="Logout"
-        component={() => null} // je ne mets pas de vrai écran ici
+        component={EmptyScreen} // j'utilise un composant vide pour éviter le warning
         listeners={{
           // Quand on appuie sur l'onglet Logout
           tabPress: (e) => {
@@ -71,5 +74,4 @@ const NavBottom = ({ onLogout }: NavBottomProps) => {
   );
 };
 
-// Je rends mon composant exportable pour pouvoir l'utiliser dans MainStackNavigator
 export default NavBottom;

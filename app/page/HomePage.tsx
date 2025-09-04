@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
   Image,
   Modal,
-  TextInput,
+  ScrollView,
   StyleSheet,
-  Alert,
-  FlatList,
-  Dimensions,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { AuthContext } from "../../context/AuthContext";
 
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { GestureResponderEvent } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons"; // Pour les icônes
@@ -31,6 +29,7 @@ const ITEMS_PER_PAGE = 5;
 const SWIPE_THRESHOLD = 50;
 
 const HomePage = () => {
+    const { logout } = useContext(AuthContext);
   // ============ ÉTATS ============
   // Totaux et listes de prélèvements
   const [totalMontant, setTotalMontant] = useState<number>(0);
@@ -294,11 +293,23 @@ const HomePage = () => {
           {currentItems.map((item, index) => {
             const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
             const translateX = swipeStates[globalIndex] || 0;
-            const date = new Date(item.datePrelevement);
-            const day = date.getDate().toString().padStart(2, "0");
-            const monthName = date.toLocaleDateString("fr-FR", {
+            let date: Date;
+            if (item.datePrelevement.includes("-")) {
+              const [yearStr, monthStr, dayStr] =
+                item.datePrelevement.split("-");
+              const year = parseInt(yearStr, 10);
+              const month = parseInt(monthStr, 10) - 1; // mois commence à 0
+              const day = parseInt(dayStr, 10);
+              date = new Date(year, month, day);
+            } else {
+              date = new Date(item.datePrelevement);
+            }
+
+            const formattedDate = date.toLocaleDateString("fr-FR", {
+              day: "2-digit",
               month: "long",
             });
+
             return (
               <View key={globalIndex} style={styles.swipeItem}>
                 {/* Actions fixes derrière */}
@@ -322,7 +333,11 @@ const HomePage = () => {
                     }}
                     style={[
                       styles.actionButton,
-                      { backgroundColor: "#DC2626", borderTopRightRadius: 12, borderBottomRightRadius: 12 },
+                      {
+                        backgroundColor: "#DC2626",
+                        borderTopRightRadius: 12,
+                        borderBottomRightRadius: 12,
+                      },
                     ]}
                   >
                     <Ionicons name="trash" size={20} color="white" />
@@ -341,9 +356,10 @@ const HomePage = () => {
                       source={{ uri: `/logos/${item.nom.toLowerCase()}.png` }}
                       style={styles.logo}
                     />
-                    <Text style={styles.itemText}>
-                      {day} {monthName}
-                    </Text>
+            <Text style={styles.itemText}>
+  {formattedDate}
+</Text>
+
                   </View>
                   <Text style={styles.itemPrice}>{item.prix.toFixed(2)} €</Text>
                 </View>
